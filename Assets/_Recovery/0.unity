@@ -2835,7 +2835,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   holdDistance: 2
   interactableLayer:
-    serializedVersion: 2
     m_Bits: 0
 --- !u!1 &1111572941
 GameObject:
