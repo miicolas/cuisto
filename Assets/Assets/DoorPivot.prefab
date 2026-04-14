@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8002883885602507954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5387425834151316553}
+  - component: {fileID: 749488115880445466}
+  m_Layer: 0
+  m_Name: DoorPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5387425834151316553
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8002883885602507954}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.176, y: 1.029, z: 0.013}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4716821269635546991}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &749488115880445466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8002883885602507954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 921a02de8787643d890a54f6b8e6f91b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorController
+  pushForce: 10
+  returnSpeed: 1
+  maxAngle: 90
+  isBeingPushed: 0
+--- !u!1001 &3596138287567377298
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5387425834151316553}
+    m_Modifications:
+    - target: {fileID: 4404279771363109330, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_Name
+      value: EntranceDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.00010049343
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.020999908
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.36559284
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+--- !u!4 &4716821269635546991 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8114799660641594621, guid: f245147e8ae86418387ccf0ce630f105, type: 3}
+  m_PrefabInstance: {fileID: 3596138287567377298}
+  m_PrefabAsset: {fileID: 0}
