@@ -1,20 +1,28 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // ← nouveau
+using UnityEngine.InputSystem;
 
 public class LightSwitch : MonoBehaviour
 {
-    public Light myLight;
+    public Light[] myLights;
 
     void Update()
     {
-        if (Keyboard.current.eKey.wasPressedThisFrame) 
+        if (Keyboard.current == null || !Keyboard.current.eKey.wasPressedThisFrame) return;
+        if (Camera.main == null) return;
+
+        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+        if (Physics.Raycast(ray, out RaycastHit hit, 3f))
         {
-            Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
-            if (Physics.Raycast(ray, out RaycastHit hit, 3f))
-            {
-                if (hit.collider.gameObject == this.gameObject)
-                    myLight.enabled = !myLight.enabled;
-            }
+            if (hit.collider.gameObject == this.gameObject)
+                Toggle();
+        }
+    }
+
+    public void Toggle()
+    {
+        foreach (var light in myLights)
+        {
+            if (light != null) light.enabled = !light.enabled;
         }
     }
 }

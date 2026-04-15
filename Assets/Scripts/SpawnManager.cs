@@ -29,21 +29,19 @@ public class SpawnManager : MonoBehaviour
         forward.y = 0;
         forward.Normalize();
 
-        Vector3 horizontalTarget = new Vector3(
-            cam.transform.position.x + forward.x * spawnForwardDistance,
-            0f,
-            cam.transform.position.z + forward.z * spawnForwardDistance
-        );
-
-        Vector3 rayOrigin = new Vector3(horizontalTarget.x, cam.transform.position.y + 0.5f, horizontalTarget.z);
-        if (!Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRaycastDistance, ~0, QueryTriggerInteraction.Ignore))
+        float[] tryDistances = { spawnForwardDistance, 1.5f, 1f, 0.5f };
+        foreach (float dist in tryDistances)
         {
-            return false;
+            Vector3 target = cam.transform.position + forward * dist;
+            Vector3 rayOrigin = new Vector3(target.x, cam.transform.position.y + groundRaycastHeight, target.z);
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRaycastDistance, ~0, QueryTriggerInteraction.Ignore))
+            {
+                spawnPosition = hit.point + Vector3.up * spawnHeightOffset;
+                groundCollider = hit.collider;
+                return true;
+            }
         }
-
-        spawnPosition = hit.point + Vector3.up * spawnHeightOffset;
-        groundCollider = hit.collider;
-        return true;
+        return false;
     }
 
     bool CanSpawnAtPosition(Vector3 spawnPosition, Collider groundCollider)
@@ -90,7 +88,9 @@ public class SpawnManager : MonoBehaviour
         }
 
         float rightAngleRotation = Random.Range(0, 4) * 90f;
-        Instantiate(tablePrefab, spawnPosition, Quaternion.Euler(270, 0, rightAngleRotation));
+        Vector3 tablePosition = new Vector3(spawnPosition.x, 0.1f, spawnPosition.z);
+        GameObject table = Instantiate(tablePrefab, tablePosition, Quaternion.Euler(270, 0, rightAngleRotation));
+        table.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
     }
 
     public void SpawnChair()
