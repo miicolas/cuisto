@@ -1,129 +1,103 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject tablePrefab;
-    public GameObject chairPrefab;
-    public GameObject decoPrefab;
-    public float spawnCheckRadius = 0.45f;
-    public float spawnForwardDistance = 2f;
-    public float groundRaycastHeight = 100f;
-    public float groundRaycastDistance = 300f;
-    public float spawnHeightOffset = 0.5f;
-
-    readonly Collider[] overlapResults = new Collider[8];
-
-    bool TryGetSpawnPosition(out Vector3 spawnPosition, out Collider groundCollider)
+    [Serializable]
+    public class SpawnableEntry
     {
-        spawnPosition = Vector3.zero;
-        groundCollider = null;
+        public string displayName;
+        public GameObject prefab;
+        public Sprite icon;
+        public Vector3 eulerRotation;
+        public Vector3 scale = Vector3.one;
+        public float yOverride = float.NaN;
+        public bool randomYaw;
+    }
 
-        Camera cam = Camera.main;
-        if (cam == null)
+    public List<SpawnableEntry> spawnables = new();
+    public float spawnForwardDistance = 2f;
+    public float groundRaycastDistance = 50f;
+    public float spawnHeightOffset = 0.1f;
+
+    static void EnsureGrabbable(GameObject go)
+    {
+        if (go == null) return;
+        var rb = go.GetComponent<Rigidbody>();
+        if (rb == null) rb = go.AddComponent<Rigidbody>();
+        rb.useGravity = true;
+        rb.isKinematic = false;
+        rb.constraints = RigidbodyConstraints.None;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        if (go.GetComponent<Collider>() == null)
         {
-            Debug.LogWarning("Impossible de poser : aucune caméra MainCamera détectée.");
-            return false;
+            foreach (var mf in go.GetComponentsInChildren<MeshFilter>())
+                if (mf.GetComponent<Collider>() == null)
+                    mf.gameObject.AddComponent<MeshCollider>().convex = true;
         }
+        var grab = go.GetComponent<XRGrabInteractable>();
+        if (grab == null) grab = go.AddComponent<XRGrabInteractable>();
+        grab.forceGravityOnDetach = true;
+    }
 
-        Vector3 forward = cam.transform.forward;
+    Vector3 ComputeSpawnPosition()
+    {
+        Camera cam = Camera.main;
+        Vector3 basePos = cam != null ? cam.transform.position : transform.position;
+        Vector3 forward = cam != null ? cam.transform.forward : transform.forward;
         forward.y = 0;
         forward.Normalize();
+        Vector3 right = Vector3.Cross(Vector3.up, forward);
 
-        float[] tryDistances = { spawnForwardDistance, 1.5f, 1f, 0.5f };
-        foreach (float dist in tryDistances)
-        {
-            Vector3 target = cam.transform.position + forward * dist;
-            Vector3 rayOrigin = new Vector3(target.x, cam.transform.position.y + groundRaycastHeight, target.z);
-            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRaycastDistance, ~0, QueryTriggerInteraction.Ignore))
-            {
-                spawnPosition = hit.point + Vector3.up * spawnHeightOffset;
-                groundCollider = hit.collider;
-                return true;
-            }
-        }
-        return false;
+        Vector2 jitter = UnityEngine.Random.insideUnitCircle * 0.6f;
+        Vector3 target = basePos + forward * spawnForwardDistance + right * jitter.x;
+        Vector3 rayOrigin = new Vector3(target.x, basePos.y, target.z);
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRaycastDistance, ~0, QueryTriggerInteraction.Ignore))
+            return hit.point + Vector3.up * spawnHeightOffset;
+        return new Vector3(target.x, basePos.y - 1f, target.z);
     }
 
-    bool CanSpawnAtPosition(Vector3 spawnPosition, Collider groundCollider)
+    GameObject SpawnEntry(SpawnableEntry entry)
     {
-        int hitCount = Physics.OverlapSphereNonAlloc(
-            spawnPosition,
-            spawnCheckRadius,
-            overlapResults,
-            ~0,
-            QueryTriggerInteraction.Ignore
-        );
+        if (entry == null || entry.prefab == null) return null;
 
-        for (int i = 0; i < hitCount; i++)
-        {
-            Collider hitCollider = overlapResults[i];
-            if (hitCollider == null)
-            {
-                continue;
-            }
+        Vector3 pos = ComputeSpawnPosition();
+        if (!float.IsNaN(entry.yOverride)) pos.y = entry.yOverride;
 
-            if (hitCollider == groundCollider)
-            {
-                continue;
-            }
+        Vector3 euler = entry.eulerRotation;
+        if (entry.randomYaw) euler.y += UnityEngine.Random.Range(0, 4) * 90f;
 
-            return false;
-        }
-
-        return true;
+        GameObject go = Instantiate(entry.prefab, pos, Quaternion.Euler(euler));
+        if (entry.scale != Vector3.zero && entry.scale != Vector3.one)
+            go.transform.localScale = entry.scale;
+        EnsureGrabbable(go);
+        return go;
     }
 
-    public void SpawnTable()
+    public GameObject Spawn(int index)
     {
-        if (!TryGetSpawnPosition(out Vector3 spawnPosition, out Collider groundCollider))
+        if (index < 0 || index >= spawnables.Count)
         {
-            Debug.Log("Impossible de poser ici : pas de sol détecté.");
-            return;
+            Debug.LogWarning($"SpawnManager.Spawn: index {index} out of range (count={spawnables.Count})");
+            return null;
         }
-
-        if (!CanSpawnAtPosition(spawnPosition, groundCollider))
-        {
-            Debug.Log("Impossible de poser ici : emplacement occupé.");
-            return;
-        }
-
-        float rightAngleRotation = Random.Range(0, 4) * 90f;
-        Vector3 tablePosition = new Vector3(spawnPosition.x, 0.1f, spawnPosition.z);
-        GameObject table = Instantiate(tablePrefab, tablePosition, Quaternion.Euler(270, 0, rightAngleRotation));
-        table.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
+        return SpawnEntry(spawnables[index]);
     }
 
-    public void SpawnChair()
+    public GameObject Spawn(string displayName)
     {
-        if (!TryGetSpawnPosition(out Vector3 spawnPosition, out Collider groundCollider))
+        SpawnableEntry entry = spawnables.Find(e => e != null && e.displayName == displayName);
+        if (entry == null)
         {
-            Debug.Log("Impossible de poser ici : pas de sol détecté.");
-            return;
+            Debug.LogWarning($"SpawnManager.Spawn: no spawnable named '{displayName}'");
+            return null;
         }
-
-        if (!CanSpawnAtPosition(spawnPosition, groundCollider))
-        {
-            Debug.Log("Impossible de poser ici : emplacement occupé.");
-            return;
-        }
-
-        Instantiate(chairPrefab, spawnPosition, Quaternion.identity);
+        return SpawnEntry(entry);
     }
 
-    public void SpawnDeco()
-    {
-        if (!TryGetSpawnPosition(out Vector3 spawnPosition, out Collider groundCollider))
-        {
-            Debug.Log("Impossible de poser ici : pas de sol détecté.");
-            return;
-        }
-
-        if (!CanSpawnAtPosition(spawnPosition, groundCollider))
-        {
-            Debug.Log("Impossible de poser ici : emplacement occupé.");
-            return;
-        }
-
-        Instantiate(decoPrefab, spawnPosition, Quaternion.identity);
-    }
+    public void SpawnTable() => Spawn("Table");
+    public void SpawnChair() => Spawn("Chair");
+    public void SpawnDeco() => Spawn("Deco");
 }
