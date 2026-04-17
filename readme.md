@@ -28,9 +28,9 @@ Projet réalisé :
 | Interrupteur + lumières | Nicolas, Eric |
 | Porte automatique | Nicolas, Mathis |
 | Spawn d'objets | Nicolas |
-| Reset de la scène | Nicolas, Ray |
+| Reset de la scène | Nicolas, Rey |
 | Menu de sélection d'objet | Nicolas, Eric |
-| Manipulation d'objet (move / rotate / delete) | Nicolas, Mathis, Ray |
+| Manipulation d'objet (move / rotate / delete) | Nicolas, Mathis, Rey |
 
 
 ## SETUP VR PAS RÉALISABLE
